@@ -3,14 +3,16 @@ class Solution
 public:
     long long gcdSum(vector<int>& nums)
     {
-        vector<int> prefixGcd;
+        int n = nums.size();
+
+        vector<int> prefixGcd(n);
 
         int mx = 0;
 
-        for (int num : nums)
+        for (int i = 0; i < n; i++)
         {
-            mx = max(mx, num);
-            prefixGcd.push_back(gcd(num, mx));
+            mx = max(mx, nums[i]);
+            prefixGcd[i] = gcd(nums[i], mx);
         }
 
         sort(prefixGcd.begin(), prefixGcd.end());
@@ -18,7 +20,7 @@ public:
         long long ans = 0;
 
         int left = 0;
-        int right = prefixGcd.size() - 1;
+        int right = n - 1;
 
         while (left < right)
         {
