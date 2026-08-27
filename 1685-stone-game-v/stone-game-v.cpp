@@ -1,34 +1,39 @@
 class Solution {
 public:
-    int stoneGameV(vector<int>& stoneValue) {
-        int n = stoneValue.size();
-        vector<int> pref(n + 1, 0);
-        for (int i = 0; i < n; ++i) pref[i + 1] = pref[i] + stoneValue[i];
+    int n;
+    vector<int> pre;
+    vector<vector<int>> dp;
 
-        auto rangeSum = [&](int l, int r) {
-            return pref[r + 1] - pref[l];
-        };
+    int solve(int l, int r) {
+        if (l == r) return 0;
+        if (dp[l][r] != -1) return dp[l][r];
 
-        vector<vector<int>> dp(n, vector<int>(n, 0));
+        int ans = 0;
 
-        for (int len = 2; len <= n; ++len) {
-            for (int l = 0; l + len - 1 < n; ++l) {
-                int r = l + len - 1;
-                for (int k = l; k < r; ++k) {
-                    int left = rangeSum(l, k);
-                    int right = rangeSum(k + 1, r);
+        for (int k = l; k < r; k++) {
+            int left = pre[k + 1] - pre[l];
+            int right = pre[r + 1] - pre[k + 1];
 
-                    if (left < right) {
-                        dp[l][r] = max(dp[l][r], left + dp[l][k]);
-                    } else if (left > right) {
-                        dp[l][r] = max(dp[l][r], right + dp[k + 1][r]);
-                    } else {
-                        dp[l][r] = max(dp[l][r], left + max(dp[l][k], dp[k + 1][r]));
-                    }
-                }
-            }
+            if (left < right)
+                ans = max(ans, left + solve(l, k));
+            else if (left > right)
+                ans = max(ans, right + solve(k + 1, r));
+            else
+                ans = max(ans, left + max(solve(l, k), solve(k + 1, r)));
         }
 
-        return dp[0][n - 1];
+        return dp[l][r] = ans;
+    }
+
+    int stoneGameV(vector<int>& stoneValue) {
+        n = stoneValue.size();
+        pre.assign(n + 1, 0);
+
+        for (int i = 0; i < n; i++)
+            pre[i + 1] = pre[i] + stoneValue[i];
+
+        dp.assign(n, vector<int>(n, -1));
+
+        return solve(0, n - 1);
     }
 };
